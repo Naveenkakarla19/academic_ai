@@ -1,0 +1,6 @@
+{
+  "name": "AI-Powered Student Academic Intelligence System",
+  "description": "Full-stack academic intelligence app for tracking student backlogs, CGPA ranking, college regulation & exam schedule RAG agent, and email reminder scheduler.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
