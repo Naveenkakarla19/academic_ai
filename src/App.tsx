@@ -8,6 +8,7 @@ import { AgentGraphVisualizer } from './components/AgentGraphVisualizer';
 import { EmailReminderCenter } from './components/EmailReminderCenter';
 import { DatabaseSchemaViewer } from './components/DatabaseSchemaViewer';
 import { DocumentationHub } from './components/DocumentationHub';
+import { ExamScheduleDesigner } from './components/ExamScheduleDesigner';
 
 export default function App() {
   const [session, setSession] = useState<UserSession>({
@@ -16,6 +17,7 @@ export default function App() {
   });
 
   const [activeTab, setActiveTab] = useState<string>('admin-overview');
+  const [showTechSpecs, setShowTechSpecs] = useState<boolean>(true);
   const [students, setStudents] = useState<Student[]>([]);
   const [documents, setDocuments] = useState<DocumentRecord[]>([]);
   const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
@@ -58,8 +60,13 @@ export default function App() {
     }
   };
 
+  const defaultStudent =
+    students.find((s) => s.rank === 1) ||
+    [...students].sort((a, b) => b.cgpa - a.cgpa)[0] ||
+    students[0];
+
   const currentStudent =
-    students.find((s) => s.studentId === session.studentId) || students[0];
+    students.find((s) => s.studentId === session.studentId) || defaultStudent;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white flex flex-col">
@@ -70,6 +77,8 @@ export default function App() {
         onSessionChange={handleSessionChange}
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        showTechSpecs={showTechSpecs}
+        onToggleTechSpecs={() => setShowTechSpecs(!showTechSpecs)}
       />
 
       {/* Main App Content Area */}
@@ -92,17 +101,32 @@ export default function App() {
             )}
 
             {(activeTab === 'student-portal' || activeTab === 'student-rag') && currentStudent && (
-              <StudentDashboard student={currentStudent} onRefreshData={refreshData} />
+              <StudentDashboard
+                student={currentStudent}
+                students={students}
+                onSelectStudent={(s) => {
+                  setSession((prev) => ({
+                    ...prev,
+                    studentId: s.studentId,
+                    studentName: s.name,
+                    email: s.email,
+                  }));
+                }}
+                onRefreshData={refreshData}
+              />
             )}
 
             {activeTab === 'emails' && (
               <EmailReminderCenter emailLogs={emailLogs} onRefreshData={refreshData} />
             )}
 
+            {activeTab === 'exam-designer' && (
+              <ExamScheduleDesigner onRefreshData={refreshData} />
+            )}
+
             {activeTab === 'langgraph' && (
               <div className="space-y-6">
                 <AgentGraphVisualizer />
-                {currentStudent && <StudentDashboard student={currentStudent} onRefreshData={refreshData} />}
               </div>
             )}
 

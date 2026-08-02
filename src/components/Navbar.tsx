@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserSession, Student } from '../types';
-import { GraduationCap, ShieldCheck, UserCheck, Bot, Mail, Database, FileText, Cpu } from 'lucide-react';
+import { GraduationCap, ShieldCheck, UserCheck, Bot, Mail, Database, FileText, Cpu, Eye, EyeOff, Calendar } from 'lucide-react';
 
 interface NavbarProps {
   session: UserSession;
@@ -8,6 +8,8 @@ interface NavbarProps {
   onSessionChange: (newSession: UserSession) => void;
   activeTab: string;
   onTabChange: (tab: string) => void;
+  showTechSpecs?: boolean;
+  onToggleTechSpecs?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -16,6 +18,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSessionChange,
   activeTab,
   onTabChange,
+  showTechSpecs = true,
+  onToggleTechSpecs,
 }) => {
   return (
     <header className="bg-slate-900 border-b border-slate-800 text-slate-100 sticky top-0 z-40 shadow-lg">
@@ -23,17 +27,17 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center justify-between h-16">
           {/* Brand Logo & Name */}
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-cyan-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-blue-700 to-amber-500 flex items-center justify-center text-white shadow-md shadow-indigo-600/30 ring-1 ring-white/10">
               <GraduationCap className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="font-bold text-lg text-white tracking-tight">AcademicIntel</span>
-                <span className="px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-full">
-                  LangGraph AI
+                <span className="font-extrabold text-base sm:text-lg text-white tracking-tight">Raghu Engineering College</span>
+                <span className="px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider bg-amber-500/15 text-amber-300 border border-amber-500/30 rounded-md">
+                  AUTONOMOUS
                 </span>
               </div>
-              <p className="text-xs text-slate-400">Student Intelligence & RAG System</p>
+              <p className="text-xs text-slate-400 font-medium">Academic Intelligence & Backlog Command System</p>
             </div>
           </div>
 
@@ -59,7 +63,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               <button
                 onClick={() => {
-                  const defaultStudent = students[0] || { studentId: '21CSE001', name: 'Aarav Sharma', email: 'aarav.sharma@college.edu' };
+                  const defaultStudent =
+                    students.find((s) => s.rank === 1) ||
+                    [...students].sort((a, b) => b.cgpa - a.cgpa)[0] ||
+                    students[0] ||
+                    { studentId: '21CSE001', name: 'Aarav Sharma', email: 'aarav.sharma@college.edu' };
                   onSessionChange({
                     role: 'student',
                     studentId: defaultStudent.studentId,
@@ -102,6 +110,22 @@ export const Navbar: React.FC<NavbarProps> = ({
                 ))}
               </select>
             )}
+
+            {/* Toggle DDL & Tech Specs visibility */}
+            {onToggleTechSpecs && (
+              <button
+                onClick={onToggleTechSpecs}
+                title="Toggle DDL, ER Diagram, and Tech Specs in Navbar"
+                className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+                  showTechSpecs
+                    ? 'bg-slate-800/90 text-indigo-300 border-indigo-500/40 hover:bg-slate-800'
+                    : 'bg-slate-900 text-slate-400 border-slate-700 hover:text-slate-200'
+                }`}
+              >
+                {showTechSpecs ? <Eye className="w-3.5 h-3.5 text-indigo-400" /> : <EyeOff className="w-3.5 h-3.5 text-slate-500" />}
+                <span className="hidden sm:inline">{showTechSpecs ? 'Tech Specs: ON' : 'Tech Specs: OFF'}</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -137,32 +161,45 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span>Email Reminder Agent</span>
               </button>
               <button
-                onClick={() => onTabChange('langgraph')}
+                onClick={() => onTabChange('exam-designer')}
                 className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${
-                  activeTab === 'langgraph' ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                  activeTab === 'exam-designer' ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
                 }`}
               >
-                <Cpu className="w-3.5 h-3.5" />
-                <span>LangGraph Architecture</span>
+                <Calendar className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Exam Schedule Designer</span>
               </button>
-              <button
-                onClick={() => onTabChange('schema')}
-                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${
-                  activeTab === 'schema' ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-                }`}
-              >
-                <Database className="w-3.5 h-3.5" />
-                <span>ER Diagram & DDL</span>
-              </button>
-              <button
-                onClick={() => onTabChange('docs')}
-                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${
-                  activeTab === 'docs' ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-                }`}
-              >
-                <FileText className="w-3.5 h-3.5" />
-                <span>Project Documentation</span>
-              </button>
+              {showTechSpecs && (
+                <>
+                  <button
+                    onClick={() => onTabChange('langgraph')}
+                    className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${
+                      activeTab === 'langgraph' ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                    }`}
+                  >
+                    <Cpu className="w-3.5 h-3.5" />
+                    <span>LangGraph Architecture</span>
+                  </button>
+                  <button
+                    onClick={() => onTabChange('schema')}
+                    className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${
+                      activeTab === 'schema' ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                    }`}
+                  >
+                    <Database className="w-3.5 h-3.5" />
+                    <span>ER Diagram & DDL</span>
+                  </button>
+                  <button
+                    onClick={() => onTabChange('docs')}
+                    className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${
+                      activeTab === 'docs' ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                    }`}
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Project Documentation</span>
+                  </button>
+                </>
+              )}
             </>
           ) : (
             <>
@@ -184,24 +221,28 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <Bot className="w-3.5 h-3.5" />
                 <span>AI RAG Academic Chatbot</span>
               </button>
-              <button
-                onClick={() => onTabChange('langgraph')}
-                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${
-                  activeTab === 'langgraph' ? 'bg-cyan-600/30 text-cyan-300 border border-cyan-500/40' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-                }`}
-              >
-                <Cpu className="w-3.5 h-3.5" />
-                <span>LangGraph Flow Inspector</span>
-              </button>
-              <button
-                onClick={() => onTabChange('docs')}
-                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${
-                  activeTab === 'docs' ? 'bg-cyan-600/30 text-cyan-300 border border-cyan-500/40' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-                }`}
-              >
-                <FileText className="w-3.5 h-3.5" />
-                <span>Documentation & Guides</span>
-              </button>
+              {showTechSpecs && (
+                <>
+                  <button
+                    onClick={() => onTabChange('langgraph')}
+                    className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${
+                      activeTab === 'langgraph' ? 'bg-cyan-600/30 text-cyan-300 border border-cyan-500/40' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                    }`}
+                  >
+                    <Cpu className="w-3.5 h-3.5" />
+                    <span>LangGraph Flow Inspector</span>
+                  </button>
+                  <button
+                    onClick={() => onTabChange('docs')}
+                    className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${
+                      activeTab === 'docs' ? 'bg-cyan-600/30 text-cyan-300 border border-cyan-500/40' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                    }`}
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Documentation & Guides</span>
+                  </button>
+                </>
+              )}
             </>
           )}
         </div>

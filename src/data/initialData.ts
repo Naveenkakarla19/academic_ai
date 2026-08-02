@@ -188,6 +188,33 @@ export const INITIAL_STUDENTS: Student[] = [
     backlogCount: 1,
     placementEligible: false,
   },
+  {
+    studentId: '23981A42E7',
+    name: 'K. Naveen',
+    department: 'CSE',
+    year: 3,
+    semester: 5,
+    cgpa: 8.75,
+    attendance: 88.5,
+    credits: 108,
+    email: 'karlanaveen19@gmail.com',
+    phone: '+91 98765 43219',
+    subjects: ['Data Structures', 'Operating Systems', 'Database Systems', 'Computer Networks', 'Web Technologies'],
+    backlogs: [
+      {
+        id: 'BL-105',
+        studentId: '23981A42E7',
+        subjectCode: 'CS302',
+        subjectName: 'Data Structures & Algorithms',
+        semester: 3,
+        examDate: '2026-08-21',
+        daysRemaining: 20,
+        status: 'SCHEDULED',
+      },
+    ],
+    backlogCount: 1,
+    placementEligible: false,
+  },
 ];
 
 export const INITIAL_DOCUMENTS: DocumentRecord[] = [

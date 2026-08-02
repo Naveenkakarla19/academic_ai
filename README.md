@@ -1,140 +1,109 @@
-# AI Powered Student Academic Intelligence System (AR23 Regulation)
+# AI-Powered Student Academic Intelligence & Rate-Limited Reminders System
 
-A full-stack, enterprise-grade AI application designed for colleges and universities to automate academic tracking, student performance ranking, backlog detection, vector RAG document intelligence, and automated email reminders for supplementary examinations under the **AR23 Academic Regulations**.
+An intelligent, full-stack Academic Management & AI Analytics Portal built with React 18, Express, Gemini AI, and Google Gmail OAuth.
 
 ---
 
 ## 🌟 Key Features
 
-### 1. Admin Command Hub
-* **Bulk Student Import**: Upload and parse student record CSVs instantly.
-* **Document RAG Indexer**: Upload College Regulations (AR23), Exam Schedules, and Placement Policy PDFs/TXTs into vector storage.
-* **AR23 CGPA Ranking Engine**: Automatic segregation of backlog vs. clear students. Ranks clear students using the official AR23 formula:
-  1. **Highest CGPA** (Primary sort)
-  2. **Attendance Percentage** (First tie-breaker)
-  3. **Total Earned Credits** (Second tie-breaker)
-* **Campus Placement Eligibility Filter**: Evaluates students against AR23 placement criteria (CGPA ≥ 6.50, 0 Standing Backlogs, Attendance ≥ 75%).
-* **Analytics & Report Exporter**: Visual department-wise charts and downloadable CSV summary reports.
+### 1. 🥇 Default Rank #1 Student View
+- Defaults student view to the top student (**Rank #1** based on CGPA) upon initial session launch.
+- Provides fallback to the highest CGPA student if explicit rank indexing updates.
 
-### 2. Student Portal & Academic Assistant
-* **Personal Academic Metrics**: Real-time view of CGPA, Department Rank, Enrolled Subjects, and Active Backlogs.
-* **Backlog Exam Countdown**: Live countdown timer for upcoming supplementary exams.
-* **Placement Eligibility Status**: Transparent breakdown of eligibility under AR23 rules.
-* **RAG AI Academic Chatbot**: Conversational AI assistant trained on college regulations and exam schedules with document source citations.
-* **LangGraph Trace Visualizer**: Live step-by-step trace showing real-time agent execution across all 8 workflow nodes.
+### 2. 📧 Rate-Limited & Throttled Email Reminder Engine
+- **20-Day Supplementary Exam Scanner**: Automatically scans all student records and identifies supplementary/backlog exams occurring within the next 20 days.
+- **In-Memory Sequential Queue**: Enqueues eligible notifications and dispatches emails sequentially (1 email every 7 seconds, avoiding parallel spamming and quota exhaustion).
+- **Quota & Rate Limit Defense**: Automatically detects Gmail API `429` / quota errors, triggers a **60-second cooldown pause**, and retries failed dispatches up to 3 times before logging error status.
+- **Live Progress Dashboard**: Visual progress bar showing real-time stats for `Pending`, `Sending`, `Sent`, and `Failed` items, alongside countdown timer during cooldown pauses.
+- **Gmail OAuth & SMTP Support**: Real inbox delivery via Google Gmail API OAuth (`gmail.send` scope) or custom SMTP credentials.
 
-### 3. Automated 20-Day Email Scanner Agent
-* **Automated Daily Scanner**: Scans active backlog exam dates across all enrolled students.
-* **Personalized AI Emails**: When a backlog exam is within 20 days, the agent generates an encouraging, personalized email via Gemini and dispatches it via SMTP.
+### 3. 🤖 AI-Powered Academic Assistant & Vector RAG Chatbot
+- Integrated RAG engine powered by Gemini AI.
+- Contextual queries on exam timetables, regulations, backlogs, CGPA benchmarks, and student academic performance.
+
+### 4. 📊 Admin & Analytics Dashboard
+- Comprehensive metrics: Total Students, Pass Rate %, Departmental Distributions, and Placement Eligibility breakdown.
+- **Bulk CSV Data Operations**: Upload CSV or paste raw text to update student records, with optional *Replace Dataset* or *Append/Merge* modes.
+- Fast mock data generator for stress testing.
 
 ---
 
-## 🏗️ LangGraph Agentic Pipeline Architecture
-
-The system executes a graph flow across 8 specialized AI node agents:
+## 🏗 System Architecture
 
 ```
-[START] 
-  └─> [Authenticate User Agent]
-        └─> [Intent Classifier]
-              ├──> [SQL Agent] (Queries student database tables)
-              ├──> [RAG Retriever] (FAISS/ChromaDB Vector match on AR23 docs)
-              └─> [Gemini LLM Synthesis Node] 
-                    └─> [Response] ──> [END]
+┌─────────────────────────────────────────────────────────────────┐
+│                      Client (React + Vite)                      │
+│  - Admin Dashboard & CSV Importer                               │
+│  - Student Academic View (Rank #1 Default)                       │
+│  - Rate-Limited Email Reminder Center (Live Progress Bar)       │
+│  - AI RAG Academic Chatbot                                      │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │ HTTP REST API
+┌────────────────────────────────▼────────────────────────────────┐
+│                   Express Backend (server.ts)                   │
+│  - In-Memory Throttled Queue Processor (1 mail / 7s)            │
+│  - 60s Rate Limit Cooldown Guard & Auto-Retry Handler            │
+│  - Gemini AI Text Generation (@google/genai)                    │
+│  - Gmail API OAuth Proxy                                        │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🗄️ Database Schema (PostgreSQL)
+## 🚀 Environment Variables
 
-The application includes a relational database schema supporting:
-* `students`: Core academic profiles, CGPA, attendance, credits, backlog counts, and placement status.
-* `backlogs`: Active pending backlogs, subject codes, exam dates, and countdown days remaining.
-* `rankings`: Computed overall and department rankings for zero-backlog students.
-* `documents`: Ingested college regulations (AR23), exam schedules, and chunk metadata for vector search.
-* `emails`: Audit history log of automated backlog exam reminder emails.
-* `chat_history`: Student query logs and LangGraph step execution traces.
+Create a `.env` file (or set environment variables in your deployment hosting platform):
 
----
+```env
+# Server Port (Defaults to 3000 in Cloud Run / AI Studio container environment)
+PORT=3000
 
-## 🛠️ Technology Stack
+# Gemini AI Key for Academic Advice & Email Generation
+GEMINI_API_KEY=your_gemini_api_key_here
 
-* **Frontend**: React 18, Tailwind CSS, Lucide React Icons, Recharts
-* **Backend**: Node.js / Express.js custom full-stack server
-* **AI & RAG Engine**: Google Gemini API (`@google/genai`), LangGraph agentic flow, Vector embeddings
-* **Database**: PostgreSQL schema compatible
-* **Deployment**: Multi-stage Docker, Docker Compose
+# Optional: SMTP Server Credentials (if not using Google OAuth)
+SMTP_USER=your_email@gmail.com
+SMTP_PASS=your_app_password
+```
 
 ---
 
-## 🚀 How to Export & Deploy to GitHub
+## 🛠 Installation & Running Locally
 
-### Option 1: Export Directly from AI Studio (Recommended)
-
-1. Look at the top navigation bar or settings menu in **AI Studio**.
-2. Click on **Export** / **GitHub**.
-3. Authenticate with your GitHub account and select a repository name.
-4. Click **Publish to GitHub**.
-
----
-
-### Option 2: Push via Local Git CLI
-
-If you download or clone the project files locally:
-
+### 1. Clone & Install Dependencies
 ```bash
-# 1. Initialize git repository
-git init
-
-# 2. Add all files
-git add .
-
-# 3. Create initial commit
-git commit -m "Initial commit: AI Powered Student Academic Intelligence System (AR23)"
-
-# 4. Rename branch to main
-git branch -M main
-
-# 5. Link your GitHub remote repository
-git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git
-
-# 6. Push to GitHub
-git push -u origin main
-```
-
----
-
-## 💻 Local Setup Instructions
-
-```bash
-# 1. Clone your repository
-git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git
-cd YOUR_REPOSITORY_NAME
-
-# 2. Install dependencies
 npm install
+```
 
-# 3. Configure environment variables
-cp .env.example .env
-# Edit .env and add your GEMINI_API_KEY
-
-# 4. Run in development mode
+### 2. Development Mode
+```bash
 npm run dev
 ```
+The server will boot on `http://localhost:3000`.
 
-Open `http://localhost:3000` in your browser.
+### 3. Production Build & Execution
+```bash
+npm run build
+npm start
+```
 
 ---
 
-## 🐳 Running with Docker
+## 📋 API Endpoints Summary
 
-```bash
-# Build and run containers with Docker Compose
-docker-compose up --build
-```
+| Endpoint | Method | Description |
+| :--- | :--- | :--- |
+| `/api/students` | `GET` | Retrieve list of students (calculated ranks, backlogs, eligibility) |
+| `/api/students/bulk-import` | `POST` | Bulk import CSV dataset (`replaceExisting: true/false`) |
+| `/api/students/clear` | `DELETE` | Clear all student records |
+| `/api/students/reset` | `POST` | Reset database to initial sample dataset |
+| `/api/emails/send-reminders` | `POST` | Trigger 20-day backlog scanner & populate rate-limited queue |
+| `/api/emails/queue-status` | `GET` | Polling endpoint for queue status, progress %, and live logs |
+| `/api/emails/queue-clear` | `POST` | Clear completed/failed items from queue |
+| `/api/chat` | `POST` | Process AI RAG chatbot query |
 
 ---
 
 ## 📄 License
 
-This project is open-source and available under the [MIT License](LICENSE).
+Distributed under the MIT License. See `LICENSE` for more information.

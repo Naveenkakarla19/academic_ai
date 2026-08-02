@@ -1,7 +1,7 @@
 export interface Student {
   studentId: string;
   name: string;
-  department: 'CSE' | 'ECE' | 'EEE' | 'MECH' | 'IT' | 'CIVIL';
+  department: string;
   year: number;
   semester: number;
   cgpa: number;
@@ -78,6 +78,35 @@ export interface EmailLog {
   status: 'SENT' | 'FAILED' | 'QUEUED';
   emailSubject: string;
   emailBody: string;
+}
+
+export interface EmailQueueItem {
+  id: string;
+  studentId: string;
+  studentName: string;
+  studentEmail: string;
+  subjectName: string;
+  subjectCode: string;
+  examDate: string;
+  daysRemaining: number;
+  status: 'PENDING' | 'SENDING' | 'SENT' | 'FAILED';
+  retryCount: number;
+  errorNote?: string;
+  createdAt: string;
+  processedAt?: string;
+}
+
+export interface EmailQueueStatus {
+  total: number;
+  pending: number;
+  sending: number;
+  sent: number;
+  failed: number;
+  progressPercent: number;
+  isProcessing: boolean;
+  isPaused: boolean;
+  pauseSecondsRemaining: number;
+  pauseReason?: string;
 }
 
 export interface DepartmentStat {
