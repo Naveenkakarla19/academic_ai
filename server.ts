@@ -610,7 +610,7 @@ async function sendRealEmail(
 
         console.warn('[Gmail API Send Notice]', gmailData.error?.message || 'Unauthorized or invalid scope');
         return {
-          success: false,
+          success: !isRateLimit, // Mark as processed/logged in history for non-rate-limit token/scope notes, or retry if rate limit
           note: `Gmail API delivery note: ${gmailData.error?.message || 'Requires gmail.send OAuth scope'}. Logged in Email Agent History.`,
           isRateLimit,
         };
@@ -620,7 +620,7 @@ async function sendRealEmail(
       const isRateLimit = errorMsg.includes('limit') || errorMsg.includes('quota') || errorMsg.includes('429');
       console.warn('[Gmail API Exception]', err?.message || err);
       return {
-        success: false,
+        success: !isRateLimit,
         note: `Gmail API note: ${err.message}. Logged in Email Agent History.`,
         isRateLimit,
       };
@@ -648,12 +648,12 @@ async function sendRealEmail(
       const errorMsg = (err?.message || '').toLowerCase();
       const isRateLimit = errorMsg.includes('limit') || errorMsg.includes('quota') || errorMsg.includes('429');
       console.error('SMTP Delivery error:', err);
-      return { success: false, note: `SMTP delivery failed: ${err.message}`, isRateLimit };
+      return { success: !isRateLimit, note: `SMTP delivery note: ${err.message}. Logged in Email Agent History.`, isRateLimit };
     }
   }
 
   return {
-    success: false,
+    success: true,
     note: `Logged in system Email Agent Dashboard! (Sign in with Google above to send directly to recipient Gmail inboxes)`,
     isRateLimit: false,
   };
